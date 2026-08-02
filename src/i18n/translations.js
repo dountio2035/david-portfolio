@@ -65,8 +65,14 @@ export const translations = {
       ],
     },
     projects: {
-      title: 'Projets & Recherche',
+      title: 'Recherche & Projets',
       items: [
+        {
+          kind: 'Recherche — Master',
+          title: "Détection & réponse adaptatives aux attaques cyber-physiques dans les systèmes d'irrigation IoT",
+          desc: "Sécurisation des systèmes d'irrigation intelligents en environnement IoT via une approche combinant un jumeau numérique, un modèle de confiance dynamique des capteurs, et l'apprentissage par renforcement (Q-Learning) pour arbitrer la réponse à une attaque en cours.",
+          stack: ['Cybersécurité', 'IoT', 'Digital Twin', 'Q-Learning', 'Systèmes embarqués'],
+        },
         {
           kind: 'Conception & Développement',
           title: 'Plateforme E-commerce Microservices',
@@ -78,12 +84,6 @@ export const translations = {
           title: 'Plateforme de Streaming Synchronisé',
           desc: "Modélisation et développement d'une plateforme de streaming vidéo synchronisé en temps réel, permettant à plusieurs utilisateurs de regarder le même contenu au même instant.",
           stack: ['UML', 'Java', 'JavaScript', 'WebSocket', 'Git', 'GitHub'],
-        },
-        {
-          kind: 'Recherche — Master',
-          title: "Détection & réponse adaptatives aux attaques cyber-physiques dans les systèmes d'irrigation IoT",
-          desc: "Sécurisation des systèmes d'irrigation intelligents en environnement IoT via une approche combinant un jumeau numérique, un modèle de confiance dynamique des capteurs, et l'apprentissage par renforcement (Q-Learning) pour arbitrer la réponse à une attaque en cours.",
-          stack: ['Cybersécurité', 'IoT', 'Digital Twin', 'Q-Learning', 'Systèmes embarqués'],
         },
       ],
     },
@@ -200,6 +200,12 @@ export const translations = {
       title: 'Projects & Research',
       items: [
         {
+          kind: "Research — Master's",
+          title: 'Adaptive Detection & Response to Cyber-Physical Attacks in IoT Irrigation Systems',
+          desc: 'Securing smart irrigation systems in IoT environments through an approach combining a digital twin, a dynamic sensor trust model, and reinforcement learning (Q-Learning) to arbitrate the response to an ongoing attack.',
+          stack: ['Cybersecurity', 'IoT', 'Digital Twin', 'Q-Learning', 'Embedded Systems'],
+        },
+        {
           kind: 'Design & Development',
           title: 'E-commerce Microservices Platform',
           desc: 'Designed (UML modeling) and built an e-commerce platform on a microservices architecture, geared for fault isolation and independently scalable services.',
@@ -210,12 +216,6 @@ export const translations = {
           title: 'Synchronized Streaming Platform',
           desc: 'Modeled and built a real-time synchronized video streaming platform, letting multiple users watch the same content at the same instant.',
           stack: ['UML', 'Java', 'JavaScript', 'WebSocket', 'Git', 'GitHub'],
-        },
-        {
-          kind: "Research — Master's",
-          title: 'Adaptive Detection & Response to Cyber-Physical Attacks in IoT Irrigation Systems',
-          desc: 'Securing smart irrigation systems in IoT environments through an approach combining a digital twin, a dynamic sensor trust model, and reinforcement learning (Q-Learning) to arbitrate the response to an ongoing attack.',
-          stack: ['Cybersecurity', 'IoT', 'Digital Twin', 'Q-Learning', 'Embedded Systems'],
         },
       ],
     },
