@@ -2,16 +2,92 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>David Duclair Dountio Tchiofo — Chercheur en Cybersécurité IoT</title>
-    <meta name="description" content="Portfolio de DOUNTIO TCHIOFO David Duclair — Master Réseaux et Services Distribués, chercheur en cybersécurité des systèmes IoT, développeur React & Spring Boot." />
+    <title>David Duclair Dountio Tchiofo | Développeur frontend et ingénieur logiciel</title>
+    <meta name="description" content="Portfolio de David Duclair Dountio Tchiofo, développeur frontend (React, TypeScript, Next.js, Tailwind CSS) et ingénieur logiciel chez Tralim. Master en Réseaux et Services Distribués, recherche en sécurité IoT." />
+    <meta name="author" content="David Duclair Dountio Tchiofo" />
+    <meta name="theme-color" content="#f2f3f5" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="David Duclair Dountio Tchiofo | Développeur frontend et ingénieur logiciel" />
+    <meta property="og:description" content="Interfaces web avec React, TypeScript et Next.js. Applications complètes, de la conception UML aux microservices." />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <!-- Saved theme and language are applied before the first paint (no flash). -->
+    <script>
+      var d = document.documentElement
+      try {
+        if (localStorage.getItem('portfolio-theme') === 'dark') d.classList.add('dark')
+        if (localStorage.getItem('portfolio-lang') === 'en') d.lang = 'en'
+      } catch (e) {}
+      // If a script file cannot be downloaded, show the help message at once.
+      window.addEventListener('error', function (e) {
+        if (e.target && e.target.tagName === 'SCRIPT') document.documentElement.classList.add('boot-failed')
+      }, true)
+    </script>
+
+    <!-- The hero portrait is the largest image: start downloading it right away. -->
+    <link rel="preload" as="image" type="image/webp" href="/img/portrait-760.webp"
+      imagesrcset="/img/portrait-480.webp 480w, /img/portrait-760.webp 760w"
+      imagesizes="(max-width: 640px) 82vw, 380px" fetchpriority="high" />
+
+    <!-- Web font loaded without blocking the first render; the system font shows meanwhile. -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400..800&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400..800&display=swap" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400..800&display=swap" /></noscript>
+
+    <!-- Minimal styles for the start-up screen below, so it shows before any other file loads. -->
+    <style>
+      html { background: #f2f3f5; color: #191c23; }
+      html.dark { background: #121419; color: #eceef2; }
+      body { margin: 0; font-family: 'Schibsted Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif; }
+      .boot { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; gap: 14px; max-width: 640px; margin: 0 auto; padding: 48px 24px; box-sizing: border-box; }
+      .boot-name { margin: 0; font-size: clamp(1.8rem, 5vw, 2.6rem); font-weight: 650; letter-spacing: -0.03em; line-height: 1.05; }
+      .boot-role { margin: 0; color: #8a6623; font-weight: 500; }
+      html.dark .boot-role { color: #d4af6a; }
+      .boot-bar { width: 120px; height: 2px; margin-top: 10px; overflow: hidden; background: rgba(127, 135, 155, 0.25); border-radius: 2px; }
+      .boot-bar::after { content: ''; display: block; width: 40%; height: 100%; background: #b08d45; animation: boot-slide 1.1s ease-in-out infinite; }
+      @keyframes boot-slide { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
+      /* Shown only if the app has not started after a few seconds (slow network or error). */
+      .boot-help { visibility: hidden; opacity: 0; margin-top: 12px; color: #596070; line-height: 1.7; }
+      html.dark .boot-help { color: #a3a9b8; }
+      .boot-help a { color: inherit; }
+      .boot-help { animation: boot-show 0.4s ease 8s forwards; }
+      html.boot-failed .boot-help { visibility: visible; opacity: 1; animation: none; }
+      html.boot-failed .boot-bar { display: none; }
+      @keyframes boot-show { to { visibility: visible; opacity: 1; } }
+      .boot [lang='en'] { display: none; }
+      html[lang='en'] .boot [lang='fr'] { display: none; }
+      html[lang='en'] .boot [lang='en'] { display: inline; }
+      @media (prefers-reduced-motion: reduce) { .boot-bar::after { animation: none; width: 100%; } }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Start-up screen: replaced by the portfolio as soon as it is ready.
+           It stays readable on its own if JavaScript is slow, blocked or fails. -->
+      <div class="boot">
+        <p class="boot-role"><span lang="fr">Développeur frontend et ingénieur logiciel</span><span lang="en">Frontend developer and software engineer</span></p>
+        <p class="boot-name">David Duclair<br />Dountio Tchiofo</p>
+        <div class="boot-bar" aria-hidden="true"></div>
+        <p class="boot-help">
+          <span lang="fr">Le chargement prend plus de temps que prévu. <a href="">Recharger la page</a> ou écrivez-moi :</span>
+          <span lang="en">Loading is taking longer than expected. <a href="">Reload the page</a> or write to me:</span>
+          <br />
+          <a href="mailto:tchiofodavid@gmail.com">tchiofodavid@gmail.com</a><br />
+          <a href="https://wa.me/237658558220">WhatsApp +237 658 558 220</a><br />
+          <a href="https://linkedin.com/in/tchiofodavid">linkedin.com/in/tchiofodavid</a>
+        </p>
+      </div>
+    </div>
+    <noscript>
+      <p style="max-width:640px;margin:0 auto;padding:0 24px 48px;">
+        Ce portfolio a besoin de JavaScript pour s’afficher entièrement. Contact :
+        <a href="mailto:tchiofodavid@gmail.com">tchiofodavid@gmail.com</a>
+      </p>
+    </noscript>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

@@ -1,92 +1,163 @@
-import { useState } from 'react'
-import { Menu, X, Sun, Moon, Languages } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { AnimatePresence, motion, useScroll, useSpring } from 'framer-motion'
 import Logo from './Logo.jsx'
+import { MenuIcon, CloseIcon, SunIcon, MoonIcon } from './Icons.jsx'
+import { FlagFR, FlagUK } from './Flags.jsx'
 import { useLanguage } from '../context/LanguageContext.jsx'
 import { useTheme } from '../context/ThemeContext.jsx'
+import { EASE_OUT, SPRING } from '../motion.js'
+
+// Tracks which section is in the middle of the viewport so the matching
+// nav link can be highlighted (and announced with aria-current).
+function useActiveSection(ids) {
+  const [active, setActive] = useState(null)
+
+  useEffect(() => {
+    const els = ids.map((id) => document.getElementById(id)).filter(Boolean)
+    if (!els.length) return undefined
+    const observer = new IntersectionObserver(
+      (entries) => entries.forEach((e) => e.isIntersecting && setActive(e.target.id)),
+      { rootMargin: '-45% 0px -50% 0px' }
+    )
+    els.forEach((el) => observer.observe(el))
+    return () => observer.disconnect()
+  }, [ids.join(',')]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  return active
+}
 
 export default function Navbar() {
   const [open, setOpen] = useState(false)
-  const { t, lang, toggleLang } = useLanguage()
+  const [solid, setSolid] = useState(false)
+  const { t, lang, setLang } = useLanguage()
   const { theme, toggleTheme } = useTheme()
 
   const links = [
-    { href: '#apropos', label: t.nav.about },
-    { href: '#competences', label: t.nav.skills },
-    { href: '#experience', label: t.nav.experience },
-    { href: '#projets', label: t.nav.projects },
-    { href: '#soutenance', label: t.nav.defense },
-    { href: '#formation', label: t.nav.formation },
-    { href: '#contact', label: t.nav.contact },
+    { id: 'apropos', label: t.nav.about },
+    { id: 'competences', label: t.nav.skills },
+    { id: 'experience', label: t.nav.experience },
+    { id: 'projets', label: t.nav.projects },
+    { id: 'soutenance', label: t.nav.defense },
+    { id: 'formation', label: t.nav.formation },
+    { id: 'contact', label: t.nav.contact },
   ]
+  const active = useActiveSection(links.map((l) => l.id))
+
+  const { scrollYProgress } = useScroll()
+  const progress = useSpring(scrollYProgress, { stiffness: 200, damping: 40, restDelta: 0.001 })
+
+  useEffect(() => {
+    const onScroll = () => setSolid(window.scrollY > 8)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  useEffect(() => {
+    if (!open) return undefined
+    const onKey = (e) => e.key === 'Escape' && setOpen(false)
+    const mq = window.matchMedia('(min-width: 1081px)')
+    const onMq = (e) => e.matches && setOpen(false)
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    window.addEventListener('keydown', onKey)
+    mq.addEventListener('change', onMq)
+    return () => {
+      document.body.style.overflow = prev
+      window.removeEventListener('keydown', onKey)
+      mq.removeEventListener('change', onMq)
+    }
+  }, [open])
+
+  const themeLabel = theme === 'dark' ? t.misc.themeToLight : t.misc.themeToDark
 
   return (
-    <header className="fixed top-0 inset-x-0 z-50 border-b border-ink-border/60 bg-ink-900/80 backdrop-blur-md">
-      <nav className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
-        <a href="#top" aria-label="Accueil">
-          <Logo className="shrink-0" />
-        </a>
-
-        <ul className="hidden lg:flex items-center gap-7 font-mono text-xs uppercase tracking-wider text-paper-muted">
-          {links.map((l) => (
-            <li key={l.href}>
-              <a href={l.href} className="hover:text-signal-teal transition-colors">
-                {l.label}
-              </a>
-            </li>
-          ))}
-        </ul>
-
-        <div className="flex items-center gap-2">
-          <button
-            onClick={toggleLang}
-            className="flex items-center gap-1.5 rounded-full border border-ink-border px-3 py-2 font-mono text-xs uppercase tracking-wider text-paper-muted hover:text-signal-teal hover:border-signal-tealDim transition-colors"
-            aria-label={lang === 'fr' ? 'Switch to English' : 'Passer en français'}
-            title={lang === 'fr' ? 'Switch to English' : 'Passer en français'}
-          >
-            <Languages size={14} />
-            {t.misc.langToggle}
-          </button>
-
-          <button
-            onClick={toggleTheme}
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-ink-border text-paper-muted hover:text-signal-teal hover:border-signal-tealDim transition-colors"
-            aria-label={theme === 'dark' ? t.misc.themeToLight : t.misc.themeToDark}
-            title={theme === 'dark' ? t.misc.themeToLight : t.misc.themeToDark}
-          >
-            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-          </button>
-
-          <a
-            href="#contact"
-            className="hidden md:inline-flex items-center gap-2 rounded-full border border-signal-tealDim/60 px-4 py-2 font-mono text-xs uppercase tracking-wider text-signal-teal hover:bg-signal-teal hover:text-ink-900 transition-colors"
-          >
-            {t.nav.cta}
+    <>
+      <header className={`header ${solid || open ? 'is-solid' : ''}`}>
+        <motion.div aria-hidden="true" className="header-progress" style={{ scaleX: progress }} />
+        <nav className="wrap nav" aria-label={t.nav.label}>
+          <a href="#top" aria-label={t.nav.home} onClick={() => setOpen(false)}>
+            <Logo subtitle={t.nav.brandRole} />
           </a>
 
-          <button
-            className="lg:hidden text-paper"
-            onClick={() => setOpen((v) => !v)}
-            aria-label={open ? 'Fermer le menu' : 'Ouvrir le menu'}
-            aria-expanded={open}
-          >
-            {open ? <X size={22} /> : <Menu size={22} />}
-          </button>
-        </div>
-      </nav>
-
-      {open && (
-        <div className="lg:hidden border-t border-ink-border/60 bg-ink-900 px-6 py-4">
-          <ul className="flex flex-col gap-4 font-mono text-sm uppercase tracking-wider text-paper-muted">
-            {links.map((l) => (
-              <li key={l.href}>
-                <a href={l.href} onClick={() => setOpen(false)} className="hover:text-signal-teal">
-                  {l.label}
-                </a>
-              </li>
-            ))}
+          <ul className="nav-links">
+            {links.map((l) => {
+              const isActive = active === l.id
+              return (
+                <li key={l.id}>
+                  <a href={`#${l.id}`} aria-current={isActive ? 'true' : undefined}>
+                    {l.label}
+                    {isActive && (
+                      <motion.span layoutId="nav-indicator" aria-hidden="true" transition={SPRING} className="nav-indicator" />
+                    )}
+                  </a>
+                </li>
+              )
+            })}
           </ul>
-        </div>
-      )}
-    </header>
+
+          <div className="nav-tools">
+            <div className="lang-switch" role="group" aria-label={t.misc.langGroup}>
+              {[
+                { code: 'fr', label: 'Français', Flag: FlagFR },
+                { code: 'en', label: 'English', Flag: FlagUK },
+              ].map(({ code, label, Flag }) => (
+                <button
+                  key={code}
+                  type="button"
+                  lang={code}
+                  onClick={() => setLang(code)}
+                  aria-pressed={lang === code}
+                  aria-label={label}
+                  title={label}
+                  className={lang === code ? 'is-active' : ''}
+                >
+                  <Flag className="flag" />
+                  <span className="lang-code">{code.toUpperCase()}</span>
+                </button>
+              ))}
+            </div>
+            <button type="button" onClick={toggleTheme} className="tool icon" aria-label={themeLabel} title={themeLabel}>
+              {theme === 'dark' ? <SunIcon size={17} /> : <MoonIcon size={17} />}
+            </button>
+            <a href="#contact" className="btn btn-solid nav-cta">{t.nav.cta}</a>
+            <button
+              type="button"
+              className="tool icon burger"
+              onClick={() => setOpen((v) => !v)}
+              aria-label={open ? t.nav.closeMenu : t.nav.openMenu}
+              aria-expanded={open}
+              aria-controls="menu-mobile"
+            >
+              {open ? <CloseIcon size={18} /> : <MenuIcon size={18} />}
+            </button>
+          </div>
+        </nav>
+      </header>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            id="menu-mobile"
+            className="mobile-menu"
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.3, ease: EASE_OUT }}
+          >
+            <ul>
+              {links.map((l) => (
+                <li key={l.id}>
+                  <a href={`#${l.id}`} onClick={() => setOpen(false)} aria-current={active === l.id ? 'true' : undefined}>
+                    {l.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <a href="#contact" onClick={() => setOpen(false)} className="btn btn-solid">{t.nav.cta}</a>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   )
 }

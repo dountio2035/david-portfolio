@@ -1,38 +1,38 @@
-import Reveal from './Reveal.jsx'
+import Section from './Section.jsx'
 import { useLanguage } from '../context/LanguageContext.jsx'
 
 export default function Skills() {
   const { t } = useLanguage()
+  const s = t.skills
+  const core = s.groups.find((g) => g.featured)
+  const others = s.groups.filter((g) => !g.featured)
 
   return (
-    <section id="competences" className="relative bg-ink-800 py-24 border-t border-ink-border/60">
-      <div className="max-w-6xl mx-auto px-6">
-        <Reveal>
-          <p className="font-mono text-xs uppercase tracking-[0.25em] text-signal-teal mb-10">
-            {t.skills.title}
-          </p>
-        </Reveal>
+    <Section id="competences" title={s.title} alt>
+      <p className="skills-intro">{s.intro}</p>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-px bg-ink-border/60 rounded-xl overflow-hidden">
-          {t.skills.groups.map((g, i) => (
-            <Reveal key={g.label} delay={i * 0.05}>
-              <div className="bg-ink-800 p-6 h-full">
-                <h3 className="font-display text-paper text-lg mb-4">{g.label}</h3>
-                <div className="flex flex-wrap gap-2">
-                  {g.items.map((item) => (
-                    <span
-                      key={item}
-                      className="rounded-md border border-ink-border bg-ink-900/60 px-2.5 py-1 font-mono text-xs text-paper-muted"
-                    >
-                      {item}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </Reveal>
-          ))}
+      {core && (
+        <div className="core">
+          <div className="core-head">
+            <h3 className="h3">{core.label}</h3>
+            <p>{core.desc}</p>
+          </div>
+          <ul className="core-list">
+            {core.items.map((item) => <li key={item}>{item}</li>)}
+          </ul>
         </div>
+      )}
+
+      <div className="groups">
+        {others.map((g) => (
+          <div key={g.label}>
+            <h3 className="h3">{g.label}</h3>
+            <ul>
+              {g.items.map((item) => <li key={item}>{item}</li>)}
+            </ul>
+          </div>
+        ))}
       </div>
-    </section>
+    </Section>
   )
 }

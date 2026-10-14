@@ -1,72 +1,113 @@
-import { MapPin, Mail, Phone } from 'lucide-react'
-import { motion } from 'framer-motion'
-import SensorMesh from './SensorMesh.jsx'
-import portrait from '../assets/portrait.jpg'
+import { useRef } from 'react'
+import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
+import { MailIcon, PinIcon, WhatsappIcon, LinkedinIcon } from './Icons.jsx'
+import { CONTACT, whatsappLink } from '../contact.js'
 import { useLanguage } from '../context/LanguageContext.jsx'
+import { EASE_OUT } from '../motion.js'
+
+// The page's one orchestrated moment: the night-blue field slides in, the portrait
+// is uncovered from the bottom, and the name rises line by line.
+const copy = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.09, delayChildren: 0.15 } },
+}
+const rise = {
+  hidden: { opacity: 0, y: 14 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: EASE_OUT } },
+}
+const nameLine = {
+  hidden: { y: '105%' },
+  show: { y: '0%', transition: { duration: 1, ease: EASE_OUT } },
+}
 
 export default function Hero() {
   const { t } = useLanguage()
+  const h = t.hero
+  const reduce = useReducedMotion()
+  const ref = useRef(null)
+
+  // The portrait drifts a little slower than the page as the hero scrolls away.
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
+  const portraitY = useTransform(scrollYProgress, [0, 1], [0, reduce ? 0 : 60])
 
   return (
-    <section
-      id="top"
-      className="relative overflow-hidden pt-32 pb-24 md:pt-40 md:pb-32"
-    >
-      <div className="relative max-w-6xl mx-auto px-6 grid md:grid-cols-[1.1fr_0.9fr] gap-14 items-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl leading-[1.05] text-paper">
-            {t.hero.name1}
-            <br />
-            {t.hero.name2}
+    <section ref={ref} id="top" className="hero">
+      <div className="wrap hero-grid">
+        <motion.div className="hero-copy" variants={copy} initial="hidden" animate="show">
+          <motion.p className="hero-role" variants={rise}>{h.role}</motion.p>
+
+          <h1 className="hero-name">
+            <span className="mask"><motion.span variants={nameLine}>{h.name1}</motion.span></span>
+            <span className="mask"><motion.span variants={nameLine} className="second">{h.name2}</motion.span></span>
           </h1>
-          <p className="mt-6 max-w-xl text-lg text-paper-muted leading-relaxed">
-            {t.hero.tagline}
-          </p>
 
-          <div className="mt-8 flex flex-wrap gap-3">
-            <a
-              href="#projets"
-              className="rounded-full bg-signal-teal px-6 py-3 font-mono text-xs uppercase tracking-wider text-ink-900 font-medium hover:opacity-90 transition-opacity"
-            >
-              {t.hero.ctaPrimary}
-            </a>
-            <a
-              href="#contact"
-              className="rounded-full border border-ink-border px-6 py-3 font-mono text-xs uppercase tracking-wider text-paper hover:border-signal-teal hover:text-signal-teal transition-colors"
-            >
-              {t.hero.ctaSecondary}
-            </a>
-          </div>
+          <motion.p className="hero-tagline" variants={rise}>{h.tagline}</motion.p>
 
-          <div className="mt-10 flex flex-wrap gap-x-6 gap-y-2 font-mono text-xs text-paper-dim">
-            <span className="flex items-center gap-2"><MapPin size={14} className="text-signal-tealDim" /> {t.hero.location}</span>
-            <span className="flex items-center gap-2"><Mail size={14} className="text-signal-tealDim" /> tchiofodavid@gmail.com</span>
-            <span className="flex items-center gap-2"><Phone size={14} className="text-signal-tealDim" /> +237 658 558 220</span>
-          </div>
+          <motion.div className="hero-actions" variants={rise}>
+            <a href="#projets" className="btn btn-solid">{h.ctaPrimary}</a>
+            <a href="#contact" className="btn btn-line">{h.ctaSecondary}</a>
+          </motion.div>
+
+          <motion.ul className="hero-contact" variants={rise}>
+            <li><PinIcon size={16} />{h.location}</li>
+            <li>
+              <MailIcon size={16} />
+              <a href={`mailto:${CONTACT.email}`} className="link">{CONTACT.email}</a>
+            </li>
+            <li>
+              <WhatsappIcon size={16} />
+              <a href={whatsappLink(t.contact.waMessage)} target="_blank" rel="noopener noreferrer" className="link">WhatsApp</a>
+            </li>
+            <li>
+              <LinkedinIcon size={16} />
+              <a href={CONTACT.linkedinHref} target="_blank" rel="noopener noreferrer" className="link">LinkedIn</a>
+            </li>
+          </motion.ul>
         </motion.div>
 
-        <motion.div
-          className="relative flex justify-center md:justify-end"
-          initial={{ opacity: 0, scale: 0.94 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <div className="relative w-64 sm:w-72">
-            <div className="absolute -inset-3 rounded-2xl border border-ink-border" />
-            <img
-              src={portrait}
-              alt="Portrait de David Duclair Dountio Tchiofo"
-              className="relative rounded-2xl w-full object-cover contrast-[1.05]"
-            />
-            <div className="absolute -bottom-6 -left-8 -right-8 -z-10 opacity-70">
-              <SensorMesh className="w-full h-auto" />
-            </div>
-          </div>
-        </motion.div>
+        <motion.figure className="portrait" style={{ y: portraitY }}>
+          <motion.div
+            aria-hidden="true"
+            className="portrait-field"
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ duration: 1.1, delay: 0.1, ease: EASE_OUT }}
+          />
+          <motion.div
+            className="portrait-frame"
+            initial={{ clipPath: 'inset(100% 0% 0% 0%)' }}
+            animate={{ clipPath: 'inset(0% 0% 0% 0%)' }}
+            transition={{ duration: 1.1, delay: 0.35, ease: EASE_OUT }}
+          >
+            {/* Served from /public so index.html can preload it before the app starts. */}
+            <picture>
+              <source
+                type="image/webp"
+                srcSet="/img/portrait-480.webp 480w, /img/portrait-760.webp 760w"
+                sizes="(max-width: 640px) 82vw, 380px"
+              />
+              <motion.img
+                src="/img/portrait-760.jpg"
+                alt={h.portraitAlt}
+                width="760"
+                height="950"
+                fetchpriority="high"
+                decoding="async"
+                initial={{ scale: 1.12 }}
+                animate={{ scale: 1 }}
+                transition={{ duration: 1.6, delay: 0.35, ease: EASE_OUT }}
+              />
+            </picture>
+          </motion.div>
+          <motion.figcaption
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 1.1 }}
+          >
+            <span className="status-dot" aria-hidden="true" />
+            {h.status}
+          </motion.figcaption>
+        </motion.figure>
       </div>
     </section>
   )

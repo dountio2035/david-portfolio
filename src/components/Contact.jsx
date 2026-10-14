@@ -1,53 +1,45 @@
-import { Mail, Phone, MapPin, Linkedin } from 'lucide-react'
-import Reveal from './Reveal.jsx'
+import { MailIcon, PhoneIcon, PinIcon, LinkedinIcon, WhatsappIcon } from './Icons.jsx'
 import { useLanguage } from '../context/LanguageContext.jsx'
+import { CONTACT, whatsappLink } from '../contact.js'
 
 export default function Contact() {
   const { t } = useLanguage()
-
-  const items = [
-    { icon: Mail, label: 'tchiofodavid@gmail.com', href: 'mailto:tchiofodavid@gmail.com' },
-    { icon: Phone, label: '+237 658 558 220', href: 'tel:+237658558220' },
-    { icon: Linkedin, label: 'linkedin.com/in/tchiofodavid', href: 'https://linkedin.com/in/tchiofodavid' },
-    { icon: MapPin, label: t.contact.location, href: null },
-  ]
+  const c = t.contact
 
   return (
-    <section id="contact" className="relative py-24 border-t border-ink-border/60">
-      <div className="max-w-6xl mx-auto px-6">
-        <Reveal>
-          <p className="font-mono text-xs uppercase tracking-[0.25em] text-signal-teal mb-6">
-            {t.contact.title}
-          </p>
-          <h2 className="font-display text-3xl md:text-4xl text-paper max-w-xl mb-10">
-            {t.contact.heading}
-          </h2>
+    <section id="contact" aria-labelledby="contact-titre" className="contact">
+      <div className="wrap">
+        <h2 id="contact-titre" className="contact-title">{c.heading}</h2>
+        <p className="contact-sub">{c.sub}</p>
 
-          <div className="flex flex-wrap gap-4">
-            {items.map(({ icon: Icon, label, href }) =>
-              href ? (
-                <a
-                  key={label}
-                  href={href}
-                  target={href.startsWith('http') ? '_blank' : undefined}
-                  rel={href.startsWith('http') ? 'noreferrer' : undefined}
-                  className="flex items-center gap-2.5 rounded-full border border-ink-border bg-ink-800 px-5 py-3 font-mono text-sm text-paper-muted hover:border-signal-tealDim hover:text-signal-teal transition-colors"
-                >
-                  <Icon size={16} />
-                  {label}
-                </a>
-              ) : (
-                <span
-                  key={label}
-                  className="flex items-center gap-2.5 rounded-full border border-ink-border bg-ink-800 px-5 py-3 font-mono text-sm text-paper-muted"
-                >
-                  <Icon size={16} />
-                  {label}
-                </span>
-              )
-            )}
-          </div>
-        </Reveal>
+        <div className="contact-main">
+          <a href={`mailto:${CONTACT.email}`} className="contact-mail">
+            <MailIcon size={22} />
+            <span className="link">{CONTACT.email}</span>
+          </a>
+          <a href={whatsappLink(c.waMessage)} target="_blank" rel="noopener noreferrer" className="btn btn-wa">
+            <WhatsappIcon size={20} />
+            {c.waCta}
+          </a>
+        </div>
+
+        <ul className="contact-list">
+          <li>
+            <WhatsappIcon size={18} />
+            <a href={whatsappLink(c.waMessage)} target="_blank" rel="noopener noreferrer" className="link num">
+              WhatsApp {CONTACT.phone}
+            </a>
+          </li>
+          <li>
+            <PhoneIcon size={18} />
+            <a href={CONTACT.phoneHref} className="link num">{CONTACT.phone}</a>
+          </li>
+          <li>
+            <LinkedinIcon size={18} />
+            <a href={CONTACT.linkedinHref} target="_blank" rel="noopener noreferrer" className="link">{CONTACT.linkedin}</a>
+          </li>
+          <li><PinIcon size={18} />{c.location}</li>
+        </ul>
       </div>
     </section>
   )

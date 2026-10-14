@@ -6,18 +6,25 @@ const LanguageContext = createContext(null)
 export function LanguageProvider({ children }) {
   const [lang, setLang] = useState(() => {
     if (typeof window === 'undefined') return 'fr'
-    return localStorage.getItem('portfolio-lang') || 'fr'
+    try {
+      const saved = localStorage.getItem('portfolio-lang')
+      return saved in translations ? saved : 'fr'
+    } catch {
+      return 'fr'
+    }
   })
 
   useEffect(() => {
-    localStorage.setItem('portfolio-lang', lang)
+    try { localStorage.setItem('portfolio-lang', lang) } catch { /* storage unavailable */ }
     document.documentElement.lang = lang
   }, [lang])
 
   const toggleLang = () => setLang((l) => (l === 'fr' ? 'en' : 'fr'))
+  // Never let an unknown language code reach the UI.
+  const safeSetLang = (code) => setLang(code in translations ? code : 'fr')
 
   return (
-    <LanguageContext.Provider value={{ lang, setLang, toggleLang, t: translations[lang] }}>
+    <LanguageContext.Provider value={{ lang, setLang: safeSetLang, toggleLang, t: translations[lang] || translations.fr }}>
       {children}
     </LanguageContext.Provider>
   )

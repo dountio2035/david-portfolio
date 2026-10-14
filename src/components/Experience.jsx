@@ -1,36 +1,42 @@
-import Reveal from './Reveal.jsx'
+import { useRef } from 'react'
+import { motion, useReducedMotion, useScroll, useSpring } from 'framer-motion'
+import Section from './Section.jsx'
 import { useLanguage } from '../context/LanguageContext.jsx'
 
 export default function Experience() {
   const { t } = useLanguage()
+  const e = t.experience
+  const reduce = useReducedMotion()
+  const listRef = useRef(null)
+
+  // The rail fills in as the timeline is read.
+  const { scrollYProgress } = useScroll({ target: listRef, offset: ['start 75%', 'end 55%'] })
+  const fill = useSpring(scrollYProgress, { stiffness: 120, damping: 30, restDelta: 0.001 })
 
   return (
-    <section id="experience" className="relative py-24 border-t border-ink-border/60">
-      <div className="max-w-6xl mx-auto px-6">
-        <Reveal>
-          <p className="font-mono text-xs uppercase tracking-[0.25em] text-signal-teal mb-10">
-            {t.experience.title}
-          </p>
-        </Reveal>
+    <Section id="experience" title={e.title}>
+      <div ref={listRef} className="timeline">
+        <span aria-hidden="true" className="timeline-rail" />
+        {!reduce && <motion.span aria-hidden="true" className="timeline-fill" style={{ scaleY: fill }} />}
+        <ol className="roles">
 
-        <div className="relative border-l border-ink-border pl-8 space-y-14 max-w-3xl">
-          {t.experience.roles.map((r, i) => (
-            <Reveal key={r.title} delay={i * 0.08} className="relative">
-              <span className="absolute -left-[37px] top-1.5 h-2.5 w-2.5 rounded-full bg-signal-teal ring-4 ring-ink-900" />
-              <p className="font-mono text-xs uppercase tracking-wider text-signal-tealDim mb-1">{r.period}</p>
-              <h3 className="font-display text-xl text-paper mb-1">{r.title}</h3>
-              <p className="text-sm text-paper-dim mb-3">{r.org}</p>
-              <ul className="space-y-1.5">
-                {r.points.map((p) => (
-                  <li key={p} className="text-paper-muted leading-relaxed pl-4 relative before:content-['—'] before:absolute before:left-0 before:text-ink-border">
-                    {p}
-                  </li>
-                ))}
+        {e.roles.map((r) => (
+          <li key={r.title} className={`role${r.current ? ' current' : ''}`}>
+            <p className="role-period num" style={{ margin: 0 }}>{r.period}</p>
+            <div>
+              <h3 className="h3">
+                {r.title}
+                {r.current && <span className="badge">{e.current}</span>}
+              </h3>
+              <p className="role-org">{r.org}</p>
+              <ul>
+                {r.points.map((p) => <li key={p}>{p}</li>)}
               </ul>
-            </Reveal>
-          ))}
-        </div>
+            </div>
+          </li>
+        ))}
+        </ol>
       </div>
-    </section>
+    </Section>
   )
 }

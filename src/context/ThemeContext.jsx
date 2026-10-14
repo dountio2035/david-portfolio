@@ -4,18 +4,18 @@ const ThemeContext = createContext(null)
 
 export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState(() => {
-    if (typeof window === 'undefined') return 'dark'
-    return localStorage.getItem('portfolio-theme') || 'dark'
+    if (typeof window === 'undefined') return 'light'
+    try {
+      return localStorage.getItem('portfolio-theme') === 'dark' ? 'dark' : 'light'
+    } catch {
+      return 'light'
+    }
   })
 
   useEffect(() => {
     const root = document.documentElement
-    if (theme === 'light') {
-      root.classList.add('light')
-    } else {
-      root.classList.remove('light')
-    }
-    localStorage.setItem('portfolio-theme', theme)
+    root.classList.toggle('dark', theme === 'dark')
+    try { localStorage.setItem('portfolio-theme', theme) } catch { /* storage unavailable */ }
   }, [theme])
 
   const toggleTheme = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))

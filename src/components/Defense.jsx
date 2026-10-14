@@ -1,96 +1,135 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Award } from 'lucide-react'
-import Reveal from './Reveal.jsx'
+import Section from './Section.jsx'
+import { AwardIcon, CloseIcon, ChevronLeftIcon, ChevronRightIcon } from './Icons.jsx'
 import { useLanguage } from '../context/LanguageContext.jsx'
-import photo1 from '../assets/soutenance/soutenance-1.jpg'
-import photo2 from '../assets/soutenance/soutenance-2.jpg'
-import photo3 from '../assets/soutenance/soutenance-3.jpg'
+import { EASE_OUT } from '../motion.js'
+import thumb1 from '../assets/soutenance/soutenance-1-600.webp'
+import thumb2 from '../assets/soutenance/soutenance-2-600.webp'
+import thumb3 from '../assets/soutenance/soutenance-3-600.webp'
+import full1 from '../assets/soutenance/soutenance-1-1200.webp'
+import full2 from '../assets/soutenance/soutenance-2-1200.webp'
+import full3 from '../assets/soutenance/soutenance-3-1200.webp'
 
-const photos = [photo1, photo2, photo3]
+// Small files for the grid, larger ones only when a photo is opened.
+const thumbs = [thumb1, thumb2, thumb3]
+const photos = [full1, full2, full3]
+
+// Slide direction decides which side the next photo enters from.
+const slide = {
+  enter: (dir) => ({ x: dir * 60, opacity: 0 }),
+  center: { x: 0, opacity: 1 },
+  exit: (dir) => ({ x: dir * -60, opacity: 0 }),
+}
 
 export default function Defense() {
   const { t } = useLanguage()
   const d = t.defense
-  const [lightbox, setLightbox] = useState(null)
+  const [[index, dir], setView] = useState([null, 0])
+  const open = index !== null
+
+  const go = (step) => setView(([i]) => [(i + step + photos.length) % photos.length, step])
+  const close = () => setView([null, 0])
+
+  // Escape closes, arrows navigate, and the page behind stops scrolling.
+  useEffect(() => {
+    if (!open) return undefined
+    const onKey = (e) => {
+      if (e.key === 'Escape') close()
+      if (e.key === 'ArrowRight') go(1)
+      if (e.key === 'ArrowLeft') go(-1)
+    }
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    window.addEventListener('keydown', onKey)
+    return () => {
+      document.body.style.overflow = prev
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [open])
 
   return (
-    <section id="soutenance" className="relative py-24 border-t border-ink-border/60">
-      <div className="max-w-6xl mx-auto px-6">
-        <Reveal>
-          <p className="font-mono text-xs uppercase tracking-[0.25em] text-signal-teal mb-10">
-            {d.title}
-          </p>
-        </Reveal>
+    <Section id="soutenance" title={d.title}>
+      <div className="defense-grid">
+        <div className="defense-text">
+          <div>
+            <p className="mention"><AwardIcon size={18} />{d.mention}</p>
+            <p className="muted" style={{ margin: 0 }}>{d.intro}</p>
+          </div>
+          <ul className="jury">
+            {d.jury.map((j) => (
+              <li key={j.name}>
+                <strong>{j.name}</strong>
+                <span>{j.role}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
 
-        <div className="grid md:grid-cols-[1fr_1.1fr] gap-12 items-start">
-          <Reveal>
-            <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-signal-amber/40 bg-signal-amber/10 px-4 py-1.5 mb-6">
-                <Award size={14} className="text-signal-amber" />
-                <span className="font-mono text-xs uppercase tracking-wider text-signal-amber">{d.mention}</span>
-              </div>
-
-              <p className="text-paper-muted text-lg leading-relaxed mb-8">{d.intro}</p>
-
-              <ul className="space-y-4">
-                {d.jury.map((j) => (
-                  <li key={j.name} className="flex items-baseline justify-between gap-4 border-b border-ink-border/60 pb-4">
-                    <span className="font-display text-paper">{j.name}</span>
-                    <span className="font-mono text-xs uppercase tracking-wider text-paper-dim shrink-0">{j.role}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </Reveal>
-
-          <Reveal delay={0.1}>
-            <div className="grid grid-cols-2 gap-3">
-              {photos.map((src, i) => (
-                <button
-                  key={src}
-                  onClick={() => setLightbox(i)}
-                  className={`overflow-hidden rounded-xl border border-ink-border focus-visible:outline-2 focus-visible:outline-signal-teal ${i === 0 ? 'col-span-2' : ''}`}
-                >
-                  <img
-                    src={src}
-                    alt={`Photo de la soutenance de mémoire ${i + 1}`}
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                  />
-                </button>
-              ))}
-            </div>
-          </Reveal>
+        <div>
+          <div className="gallery">
+            {thumbs.map((src, i) => (
+              <button type="button" key={src} onClick={() => setView([i, 0])} aria-label={`${d.photoOpen} ${i + 1}`}>
+                <img src={src} alt={`${d.photoAlt} ${i + 1}`} loading="lazy" decoding="async" width="600" height="797" />
+              </button>
+            ))}
+          </div>
+          <p className="gallery-note">{d.galleryNote}</p>
         </div>
       </div>
 
       <AnimatePresence>
-        {lightbox !== null && (
+        {open && (
           <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-label={d.photoAlt}
+            className="lightbox"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] bg-black/85 backdrop-blur-sm flex items-center justify-center p-6"
-            onClick={() => setLightbox(null)}
+            transition={{ duration: 0.25 }}
+            onClick={close}
           >
-            <button
-              className="absolute top-6 right-6 text-paper hover:text-signal-teal"
-              onClick={() => setLightbox(null)}
-              aria-label="Fermer"
-            >
-              <X size={28} />
+            <button type="button" className="lb-btn lb-close" onClick={close} aria-label={d.close} autoFocus>
+              <CloseIcon size={20} />
             </button>
-            <motion.img
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              src={photos[lightbox]}
-              alt="Photo de la soutenance de mémoire, agrandie"
-              className="max-h-[85vh] max-w-full rounded-lg object-contain"
-              onClick={(e) => e.stopPropagation()}
-            />
+
+            <AnimatePresence initial={false} custom={dir} mode="popLayout">
+              <motion.img
+                key={index}
+                src={photos[index]}
+                alt={`${d.photoAlt} ${index + 1}`}
+                custom={dir}
+                variants={slide}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ duration: 0.4, ease: EASE_OUT }}
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={0.6}
+                onDragEnd={(_, info) => {
+                  if (info.offset.x < -60) go(1)
+                  else if (info.offset.x > 60) go(-1)
+                }}
+                onClick={(e) => e.stopPropagation()}
+                draggable={false}
+              />
+            </AnimatePresence>
+
+            <div className="lb-nav" onClick={(e) => e.stopPropagation()}>
+              <button type="button" className="lb-btn" onClick={() => go(-1)} aria-label={d.prev}>
+                <ChevronLeftIcon size={20} />
+              </button>
+              <span className="num" aria-live="polite">{index + 1} / {photos.length}</span>
+              <button type="button" className="lb-btn" onClick={() => go(1)} aria-label={d.next}>
+                <ChevronRightIcon size={20} />
+              </button>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
-    </section>
+    </Section>
   )
 }
